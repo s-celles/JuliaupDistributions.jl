@@ -1,0 +1,10 @@
+# JuliaupDistributions.jl
+
+> JuliaupDistributions publishes the static files a juliaup client reads, so a Julia distribution can be installed with `juliaup add <channel>` from any static host.
+
+## Documentation
+
+- [JuliaupDistributions.jl](https://s-celles.github.io/JuliaupDistributions.jl/stable/index/)
+- [How juliaup works](https://s-celles.github.io/JuliaupDistributions.jl/stable/mechanism/)
+- [Publishing](https://s-celles.github.io/JuliaupDistributions.jl/stable/publishing/)
+- [Reference](https://s-celles.github.io/JuliaupDistributions.jl/stable/reference/)
