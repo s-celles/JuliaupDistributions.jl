@@ -3,7 +3,7 @@
 # llms-full.txt concatenates their full text. Both land in the build directory
 # so they are deployed with the site.
 
-const SITE = "https://s-celles.github.io/JuliaupDistributions.jl/stable"
+const SITE = "https://s-celles.github.io/JuliaupDistributions.jl/dev"
 
 const SUMMARY = """
 JuliaupDistributions publishes the static files a juliaup client reads, so a \

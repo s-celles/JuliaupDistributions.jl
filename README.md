@@ -1,7 +1,7 @@
 # JuliaupDistributions.jl
 
 [![CI](https://github.com/s-celles/JuliaupDistributions.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/s-celles/JuliaupDistributions.jl/actions/workflows/CI.yml)
-[![Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://s-celles.github.io/JuliaupDistributions.jl/stable)
+[![Docs dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://s-celles.github.io/JuliaupDistributions.jl/dev)
 
 Publish a Julia distribution so it can be installed with
 [`juliaup`](https://github.com/JuliaLang/juliaup).
