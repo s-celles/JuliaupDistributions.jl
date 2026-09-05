@@ -80,6 +80,19 @@ offline:
 julia --project=. test/e2e_tests.jl
 ```
 
+`examples/real_julia_demo.jl` goes further, with nothing mocked at all: it reads
+the public database, takes the real `release` entry, republishes it under a
+channel name of its own, and lets `juliaup` download and install the actual
+Julia from julialang.org.
+
+```
+julia --project=. examples/real_julia_demo.jl
+```
+
+It also shows the shortcut worth knowing when developing: `juliaup` reads its
+database straight out of its depot, so you can test a database without a server
+or a Pages deploy.
+
 ## Origin
 
 Extracted from a

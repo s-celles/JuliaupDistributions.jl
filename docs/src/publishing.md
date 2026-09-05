@@ -70,6 +70,33 @@ Two details matter in CI:
 - Point `asset_base` at the release download URL, so the database references
   the tarballs where they already are.
 
+## Testing without deploying
+
+`juliaup` reads its database straight out of its depot, so a database can be
+dropped in and used without a server or a Pages deploy:
+
+```
+$JULIAUP_DEPOT_PATH/juliaup/versiondb-<target>.json
+```
+
+`<target>` is the Rust triple of the *client*; the simplest way to learn it is
+to look at the name `juliaup` gave its own cached copy in `~/.julia/juliaup/`.
+The database version has to exceed the number built into the juliaup binary,
+otherwise the file is ignored with no diagnostic.
+
+`examples/real_julia_demo.jl` does exactly this, end to end and with nothing
+mocked: it reads the public database, takes the real `release` entry,
+republishes it under a channel name of its own, and lets `juliaup` download and
+install the actual Julia from julialang.org.
+
+```
+julia --project=. examples/real_julia_demo.jl
+```
+
+Because the database is served from somewhere other than julialang.org, the
+entry's relative `UrlPath` has to become absolute — the same mechanism that
+lets a database on GitHub Pages point at tarballs on a releases page.
+
 ## Verifying a published site
 
 The one check that proves a site works is installing from it. The package's own

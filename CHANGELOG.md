@@ -36,6 +36,10 @@ own and reused outside AppBundler.
 - An end to end test that installs a published channel with a real `juliaup`
   client over a loopback HTTP server, covering both relative and absolute
   `UrlPath`.
+- `examples/real_julia_demo.jl`, which mocks nothing: it republishes the real
+  `release` entry from the public database under its own channel name and lets
+  `juliaup` install the actual Julia from julialang.org, using a database
+  placed directly in the depot rather than served.
 
 [Unreleased]: https://github.com/s-celles/JuliaupDistributions.jl/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/s-celles/JuliaupDistributions.jl/releases/tag/v0.1.0
