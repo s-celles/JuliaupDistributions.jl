@@ -1,5 +1,9 @@
 # Reference
 
+```@docs
+JuliaupDistributions.JuliaupDistributions
+```
+
 ## Distributions
 
 ```@docs

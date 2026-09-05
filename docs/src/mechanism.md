@@ -45,7 +45,7 @@ Both are worth knowing because neither produces an error message.
 **A database version at or below the public one is ignored.** `juliaup` replaces
 its cached database only when the number it reads exceeds *both* the number
 compiled into its own binary and its local copy — and it logs nothing when it
-does not. Your channels simply never appear. [`next_dbversion`](@ref) exists for
+does not. Your channels simply never appear. [`next_dbversion`](@ref JuliaupDistributions.next_dbversion) exists for
 this, and [`publish`](@ref) resolves the number against upstream automatically.
 
 **All four pointer files must agree.** `juliaup` reads exactly one, depending on
@@ -65,5 +65,5 @@ architecture, vendor and operating system.
 architecture. A build tag containing dots shifts the index and the entry
 resolves to a nonsense architecture. JuliaHub hit this with early Dyad releases
 — `1.11.8+dyad-2.1.0-rc3.x64.linux.gnu` parses its architecture as `1` — and
-later switched to `dyad-2x1x0-rc3`. [`sanitize_build_tag`](@ref) does this for
+later switched to `dyad-2x1x0-rc3`. [`sanitize_build_tag`](@ref JuliaupDistributions.sanitize_build_tag) does this for
 you, which is why `myapp-1.2.0` becomes `myapp-1x2x0`.
