@@ -185,11 +185,27 @@ sharing channels or state, so `myapp-juliaup status` and `juliaup status` list
 different things and neither can disturb the other. Users who prefer not to
 install wrappers can export the same two variables themselves.
 
+## From the command line
+
+A release pipeline does not have to write Julia. The package is also an app:
+
+```
+julia -m JuliaupDistributions --site=site --channel=myapp-1.2.0 \
+    --name=myapp --version=1.2.0 --julia-version=1.12.7 \
+    --server=https://acme.github.io/myapp \
+    --asset-base=https://github.com/acme/myapp/releases/download/v1.2.0 \
+    --platform=linux/x86_64 --platform=macos/aarch64 --wrappers
+```
+
+`--help` lists every option. The tarballs are built elsewhere, by whatever
+means suits you; this only writes the database that points at them, following
+the naming convention `<name>-<version>-<os>-<arch>.tar.gz`.
+
 ## Continuous delivery
 
-`.github/workflows/JuliaupPages.yml.template` in this repository is a starting
-point: it builds a tarball per platform, attaches them to the release, and
-deploys the database to GitHub Pages.
+`examples/publish-to-pages.yml` in this repository is a ready-made GitHub
+Actions workflow: it publishes the database to GitHub Pages on each release,
+referencing the tarballs already attached to that release.
 
 Two details matter in CI:
 
@@ -232,6 +248,12 @@ JuliaupDistributions.publish
 JuliaupDistributions.install_wrappers
 JuliaupDistributions.wrapper_scripts
 JuliaupDistributions.asset_url
+```
+
+## Command line
+
+```@docs
+JuliaupDistributions.main
 ```
 
 ## The version database
