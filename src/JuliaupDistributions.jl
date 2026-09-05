@@ -34,6 +34,7 @@ include("versiondb.jl")
 include("upstream.jl")
 include("publish.jl")
 include("wrappers.jl")
+include("cli.jl")
 
 export Distribution, VersionDB, publish, install_wrappers
 

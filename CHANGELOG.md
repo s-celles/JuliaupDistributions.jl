@@ -27,7 +27,10 @@ own and reused outside AppBundler.
   server.
 - `install_wrappers`, generating client wrappers that set `JULIAUP_SERVER` and
   isolate `JULIAUP_DEPOT_PATH`.
-- A GitHub Actions workflow template publishing a distribution to GitHub Pages.
+- A command line entry point (`julia -m JuliaupDistributions`), so a release
+  pipeline can publish without writing Julia.
+- `examples/publish-to-pages.yml`, a GitHub Actions workflow publishing a
+  distribution to GitHub Pages on each release.
 - An end to end test that installs a published channel with a real `juliaup`
   client over a loopback HTTP server, covering both relative and absolute
   `UrlPath`.

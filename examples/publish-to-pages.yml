@@ -1,0 +1,91 @@
+# Publishes a juliaup distribution to GitHub Pages.
+#
+# Copy into .github/workflows/ of the repository that releases your
+# distribution. It assumes the release already carries one tarball per
+# platform, named <name>-<version>-<os>-<arch>.tar.gz — build those however you
+# like; this workflow only publishes the database that points at them.
+#
+# Users then install with:
+#
+#   export JULIAUP_SERVER=https://<owner>.github.io/<repo>
+#   juliaup add <channel>
+#
+# The database only names paths, so the tarballs stay on the releases page and
+# none of their bytes pass through Pages.
+
+name: Publish juliaup distribution
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# A half-published database is worse than a stale one, so never run two at once.
+concurrency:
+  group: juliaup-pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: julia-actions/setup-julia@v3
+        with:
+          version: '1'
+
+      - name: Install JuliaupDistributions
+        run: julia -e 'using Pkg; Pkg.add("JuliaupDistributions")'
+
+      # juliaup only replaces its cached database when the published number is
+      # greater than both the number built into its binary and its local copy —
+      # and it reports nothing when it is not. Seeding the site with what is
+      # already live lets the version keep climbing instead of repeating a
+      # number clients have already cached.
+      - name: Seed the previously published database version
+        continue-on-error: true
+        run: |
+          mkdir -p site/juliaup
+          curl -fsSL "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/juliaup/RELEASECHANNELDBVERSION" \
+            -o site/juliaup/RELEASECHANNELDBVERSION || true
+
+      - name: Publish the database
+        env:
+          TAG: ${{ github.event.inputs.tag || github.event.release.tag_name }}
+        run: |
+          VERSION="${TAG#v}"
+          julia -m JuliaupDistributions \
+            --site=site \
+            --channel="myapp-${VERSION}" \
+            --name=myapp \
+            --version="${VERSION}" \
+            --julia-version=1.12.7 \
+            --server="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" \
+            --asset-base="https://github.com/${{ github.repository }}/releases/download/${TAG}" \
+            --platform=linux/x86_64 \
+            --platform=linux/aarch64 \
+            --platform=macos/x86_64 \
+            --platform=macos/aarch64 \
+            --platform=windows/x86_64 \
+            --wrappers
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

@@ -14,6 +14,12 @@ JuliaupDistributions.wrapper_scripts
 JuliaupDistributions.asset_url
 ```
 
+## Command line
+
+```@docs
+JuliaupDistributions.main
+```
+
 ## The version database
 
 ```@docs

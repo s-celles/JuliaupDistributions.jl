@@ -35,6 +35,19 @@ juliaup add myapp-1.2.0
 julia +myapp-1.2.0
 ```
 
+Or from a release pipeline, without writing Julia:
+
+```
+julia -m JuliaupDistributions --site=site --channel=myapp-1.2.0 \
+    --name=myapp --version=1.2.0 --julia-version=1.12.7 \
+    --server=https://acme.github.io/myapp \
+    --asset-base=https://github.com/acme/myapp/releases/download/v1.2.0 \
+    --platform=linux/x86_64 --platform=macos/aarch64 --wrappers
+```
+
+`examples/publish-to-pages.yml` is a ready-made GitHub Actions workflow doing
+exactly that on each release.
+
 ## What it handles for you
 
 The database is small but unforgiving. This package covers the parts that are
