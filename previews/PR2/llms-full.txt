@@ -1,0 +1,276 @@
+# JuliaupDistributions.jl
+
+> JuliaupDistributions publishes the static files a juliaup client reads, so a Julia distribution can be installed with `juliaup add <channel>` from any static host.
+
+
+
+---
+
+# JuliaupDistributions.jl
+
+Source: https://s-celles.github.io/JuliaupDistributions.jl/stable/index/
+
+# JuliaupDistributions.jl
+
+Publish a Julia distribution so it can be installed with `juliaup`.
+
+`juliaup` downloads from whatever host `JULIAUP_SERVER` points at. Distributing
+a bundled Julia through it therefore needs no fork of `juliaup` and no dedicated
+infrastructure — only a handful of static files, which any static host can serve
+while the tarballs stay wherever they already live. This is the approach
+JuliaHub uses to distribute Dyad.
+
+```julia
+using JuliaupDistributions
+
+dist = Distribution(;
+    channel = "myapp-1.2.0",
+    julia_version = v"1.12.7",
+    build_tag = "myapp-1.2.0",
+    name = "myapp",
+    version = "1.2.0",
+    server = "https://acme.github.io/myapp",
+    asset_base = "https://github.com/acme/myapp/releases/download/v1.2.0")
+
+publish(dist, "site"; assets = [(:linux, :x86_64), (:macos, :aarch64)])
+```
+
+Serve `site/` over HTTPS and users install with:
+
+```
+export JULIAUP_SERVER=https://acme.github.io/myapp
+juliaup add myapp-1.2.0
+julia +myapp-1.2.0
+```
+
+## Why a package
+
+The database is small but fiddly: thirteen target triples, four pointer files,
+and two failure modes that produce no diagnostic whatsoever. Encapsulating it
+means a build pipeline only has to say which platforms it produced, and the
+awkward parts stay tested in one place.
+
+## Installation
+
+```julia
+using Pkg
+Pkg.add("JuliaupDistributions")
+```
+
+
+
+---
+
+# How juliaup works
+
+Source: https://s-celles.github.io/JuliaupDistributions.jl/stable/mechanism/
+
+# How juliaup works
+
+Understanding the three requests `juliaup` makes explains every design choice
+in this package.
+
+`juliaup add <channel>` performs:
+
+1. `GET <server>/juliaup/RELEASECHANNELDBVERSION` — one line, the number of the
+   current database.
+2. `GET <server>/juliaup/versiondb/versiondb-<dbversion>-<target>.json` — the
+   database, cached locally afterwards.
+3. `GET <UrlPath>` — the tarball, at the path the database recorded.
+
+Everything between is a local lookup: the channel resolves to a full version
+string in `AvailableChannels`, which resolves to a `UrlPath` in
+`AvailableVersions`.
+
+## UrlPath is relative to the server
+
+`UrlPath` is resolved against the server base, which makes two layouts possible:
+
+- a **relative** path keeps the database portable — move the whole site to
+  another host and nothing has to be rewritten;
+- an **absolute** url points elsewhere entirely, so a database on GitHub Pages
+  can serve tarballs from a releases page without a byte passing through Pages.
+
+## Target triples
+
+A database file is named after the Rust target triple of the **`juliaup` client
+binary**, not the Julia build it installs. There are 13, and this package writes
+all of them. Two consequences are easy to get wrong by hand:
+
+- The Linux `juliaup` is a musl-static binary that also runs on glibc hosts, so
+  a Linux build has to appear in both the `-musl` and `-gnu` databases. The same
+  holds for the Windows `-gnu`/`-msvc` pair. Upstream publishes these as
+  identical files.
+- A database carries every architecture its client can *execute*. A 64 bit
+  client lists 32 bit builds, and an Apple Silicon client lists x86_64 builds so
+  they can run under Rosetta 2.
+
+## Two silent failure modes
+
+Both are worth knowing because neither produces an error message.
+
+**A database version at or below the public one is ignored.** `juliaup` replaces
+its cached database only when the number it reads exceeds *both* the number
+compiled into its own binary and its local copy — and it logs nothing when it
+does not. Your channels simply never appear. [`next_dbversion`](@ref JuliaupDistributions.next_dbversion) exists for
+this, and [`publish`](@ref) resolves the number against upstream automatically.
+
+**All four pointer files must agree.** `juliaup` reads exactly one, depending on
+the channel it was itself installed from: `release` clients read
+`RELEASECHANNELDBVERSION`, `releasepreview` clients
+`RELEASEPREVIEWCHANNELDBVERSION`, `dev` clients `DEVCHANNELDBVERSION`. This
+package writes all four with the same number, so a user on a preview client does
+not take a 404 on a database the mirror never wrote.
+
+## Version strings
+
+A version is identified by a string like `1.12.7+myapp-1x2x0.x64.linux.gnu`: the
+Julia version, then build metadata whose components are the build tag,
+architecture, vendor and operating system.
+
+`juliaup` splits that metadata on `.` and reads the **second** component as the
+architecture. A build tag containing dots shifts the index and the entry
+resolves to a nonsense architecture. JuliaHub hit this with early Dyad releases
+— `1.11.8+dyad-2.1.0-rc3.x64.linux.gnu` parses its architecture as `1` — and
+later switched to `dyad-2x1x0-rc3`. [`sanitize_build_tag`](@ref JuliaupDistributions.sanitize_build_tag) does this for
+you, which is why `myapp-1.2.0` becomes `myapp-1x2x0`.
+
+
+
+---
+
+# Publishing
+
+Source: https://s-celles.github.io/JuliaupDistributions.jl/stable/publishing/
+
+# Publishing
+
+## Mirroring
+
+By default a distribution *mirrors*: the upstream database is downloaded, your
+channels are merged into it, and the result is republished. Users keep
+`release`, `lts` and every stock channel while pointed at your server. This is
+what JuliaHub does — their linux-x64 database is the public one plus their own
+entries.
+
+```julia
+publish(dist, "site"; assets = [(:linux, :x86_64)])
+```
+
+Set `mirror = false` to publish your channels alone. That is the right choice
+for an air-gapped site, where reaching `julialang-s3.julialang.org` at publish
+time is not possible, at the cost of stock channels no longer resolving for
+anyone using your server.
+
+You can also supply the upstream databases yourself, which is what the tests do:
+
+```julia
+publish(dist, "site"; assets = [(:linux, :x86_64)], upstream = my_databases)
+```
+
+## Client wrappers
+
+[`install_wrappers`](@ref) writes small scripts that set `JULIAUP_SERVER` and,
+importantly, `JULIAUP_DEPOT_PATH`:
+
+```bash
+export JULIAUP_SERVER=https://acme.github.io/myapp
+export JULIAUP_DEPOT_PATH="${HOME}/.julia/juliaup-depots/acme.github.io"
+
+exec juliaup "$@"
+```
+
+The isolated depot keeps your distribution and the user's stock `juliaup` from
+sharing channels or state, so `myapp-juliaup status` and `juliaup status` list
+different things and neither can disturb the other. Users who prefer not to
+install wrappers can export the same two variables themselves.
+
+## Continuous delivery
+
+`.github/workflows/JuliaupPages.yml.template` in this repository is a starting
+point: it builds a tarball per platform, attaches them to the release, and
+deploys the database to GitHub Pages.
+
+Two details matter in CI:
+
+- Seed the site with the number already published before calling `publish`, so
+  republishing keeps climbing rather than reusing a number clients have cached.
+  `publish` reads `<site>/juliaup/RELEASECHANNELDBVERSION` for exactly this.
+- Point `asset_base` at the release download URL, so the database references
+  the tarballs where they already are.
+
+## Verifying a published site
+
+The one check that proves a site works is installing from it. The package's own
+end to end test does this against a real `juliaup` client over a loopback HTTP
+server — `juliaup` permits plain HTTP on loopback, which makes the whole flow
+testable offline:
+
+```
+julia --project=. test/e2e_tests.jl
+```
+
+
+
+---
+
+# Reference
+
+Source: https://s-celles.github.io/JuliaupDistributions.jl/stable/reference/
+
+# Reference
+
+```@docs
+JuliaupDistributions.JuliaupDistributions
+```
+
+## Distributions
+
+```@docs
+JuliaupDistributions.Distribution
+JuliaupDistributions.publish
+JuliaupDistributions.install_wrappers
+JuliaupDistributions.wrapper_scripts
+JuliaupDistributions.asset_url
+```
+
+## The version database
+
+```@docs
+JuliaupDistributions.VersionDB
+JuliaupDistributions.read_versiondb
+JuliaupDistributions.write_versiondb
+JuliaupDistributions.add_version!
+JuliaupDistributions.add_channel!
+JuliaupDistributions.next_dbversion
+```
+
+## Upstream
+
+```@docs
+JuliaupDistributions.fetch_dbversion
+JuliaupDistributions.fetch_versiondb
+JuliaupDistributions.fetch_upstream
+```
+
+## Platforms
+
+```@docs
+JuliaupDistributions.full_version_string
+JuliaupDistributions.sanitize_build_tag
+JuliaupDistributions.platform_suffix
+JuliaupDistributions.juliaup_arch
+JuliaupDistributions.targets_for
+JuliaupDistributions.target_platform
+```
+
+## Internals
+
+```@docs
+JuliaupDistributions.register!
+JuliaupDistributions.published_dbversion
+JuliaupDistributions.validate_server
+JuliaupDistributions.default_depot
+JuliaupDistributions.project_julia_version
+```
+
