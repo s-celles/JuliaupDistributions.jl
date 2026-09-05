@@ -4,7 +4,7 @@
 
 ## Documentation
 
-- [JuliaupDistributions.jl](https://s-celles.github.io/JuliaupDistributions.jl/stable/index/)
-- [How juliaup works](https://s-celles.github.io/JuliaupDistributions.jl/stable/mechanism/)
-- [Publishing](https://s-celles.github.io/JuliaupDistributions.jl/stable/publishing/)
-- [Reference](https://s-celles.github.io/JuliaupDistributions.jl/stable/reference/)
+- [JuliaupDistributions.jl](https://s-celles.github.io/JuliaupDistributions.jl/dev/index/)
+- [How juliaup works](https://s-celles.github.io/JuliaupDistributions.jl/dev/mechanism/)
+- [Publishing](https://s-celles.github.io/JuliaupDistributions.jl/dev/publishing/)
+- [Reference](https://s-celles.github.io/JuliaupDistributions.jl/dev/reference/)

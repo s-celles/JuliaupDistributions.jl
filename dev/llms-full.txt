@@ -8,7 +8,7 @@
 
 # JuliaupDistributions.jl
 
-Source: https://s-celles.github.io/JuliaupDistributions.jl/stable/index/
+Source: https://s-celles.github.io/JuliaupDistributions.jl/dev/index/
 
 # JuliaupDistributions.jl
 
@@ -63,7 +63,7 @@ Pkg.add("JuliaupDistributions")
 
 # How juliaup works
 
-Source: https://s-celles.github.io/JuliaupDistributions.jl/stable/mechanism/
+Source: https://s-celles.github.io/JuliaupDistributions.jl/dev/mechanism/
 
 # How juliaup works
 
@@ -141,7 +141,7 @@ you, which is why `myapp-1.2.0` becomes `myapp-1x2x0`.
 
 # Publishing
 
-Source: https://s-celles.github.io/JuliaupDistributions.jl/stable/publishing/
+Source: https://s-celles.github.io/JuliaupDistributions.jl/dev/publishing/
 
 # Publishing
 
@@ -216,7 +216,7 @@ julia --project=. test/e2e_tests.jl
 
 # Reference
 
-Source: https://s-celles.github.io/JuliaupDistributions.jl/stable/reference/
+Source: https://s-celles.github.io/JuliaupDistributions.jl/dev/reference/
 
 # Reference
 
