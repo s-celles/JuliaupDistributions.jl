@@ -1,0 +1,20 @@
+# gitallow: everything is ignored, then what belongs in the repository is
+# allowed back explicitly.
+/*
+!/.github/
+!/docs/
+!/src/
+!/test/
+!/.gitignore
+!/CHANGELOG.md
+!/LICENSE.md
+!/Project.toml
+!/README.md
+!/SECURITY.md
+!/justfile
+
+# Build outputs and local state, even under allowed directories
+docs/build/
+docs/Manifest.toml
+Manifest.toml
+*.cov

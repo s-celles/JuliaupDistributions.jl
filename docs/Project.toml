@@ -1,0 +1,6 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+JuliaupDistributions = "3e2b30b7-d21a-44ec-8049-27ada1c854c8"
+
+[compat]
+Documenter = "1"

@@ -1,0 +1,26 @@
+name = "JuliaupDistributions"
+uuid = "3e2b30b7-d21a-44ec-8049-27ada1c854c8"
+authors = ["Sébastien Celles <s.celles@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
+
+[compat]
+Aqua = "0.8"
+Downloads = "1.6"
+JSON = "1"
+TOML = "1"
+Test = "1"
+TestItemRunner = "1"
+julia = "1.10"
+
+[extras]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+TestItemRunner = "f8b46487-2199-4994-9208-9a1283c18c0a"
+
+[targets]
+test = ["Aqua", "Test", "TestItemRunner"]
