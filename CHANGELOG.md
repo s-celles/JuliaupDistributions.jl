@@ -27,8 +27,10 @@ own and reused outside AppBundler.
   server.
 - `install_wrappers`, generating client wrappers that set `JULIAUP_SERVER` and
   isolate `JULIAUP_DEPOT_PATH`.
-- A command line entry point (`julia -m JuliaupDistributions`), so a release
-  pipeline can publish without writing Julia.
+- A command line entry point, so a release pipeline can publish without writing
+  Julia. `julia -m JuliaupDistributions` needs Julia 1.11 or newer, where
+  `@main` entry points were introduced; on 1.10 the same command is reachable
+  as `run_cli`.
 - `examples/publish-to-pages.yml`, a GitHub Actions workflow publishing a
   distribution to GitHub Pages on each release.
 - An end to end test that installs a published channel with a real `juliaup`

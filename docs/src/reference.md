@@ -17,7 +17,7 @@ JuliaupDistributions.asset_url
 ## Command line
 
 ```@docs
-JuliaupDistributions.main
+JuliaupDistributions.run_cli
 ```
 
 ## The version database

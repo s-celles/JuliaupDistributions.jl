@@ -1,5 +1,5 @@
 """
-    (@main)(ARGS) -> Int
+    run_cli(ARGS) -> Int
 
 Command line entry point, so a release pipeline can publish without writing
 Julia:
@@ -14,8 +14,12 @@ julia -m JuliaupDistributions --site=site --channel=myapp-1.2.0 \\
 
 The assets themselves are built elsewhere; this only writes the database that
 points at them.
+
+Invoking it as `julia -m JuliaupDistributions` needs Julia 1.11 or newer, which
+is where `@main` entry points were introduced. On 1.10 call this function
+directly.
 """
-function (@main)(ARGS)
+function run_cli(ARGS)
     if isempty(ARGS) || any(in(("--help", "-h")), ARGS)
         println(HELP_TEXT)
         return isempty(ARGS) ? 1 : 0
@@ -123,6 +127,13 @@ function parse_args(raw)
     isempty(options[:platforms]) &&
         error("At least one --platform=<os>/<arch> is required. See `--help`.")
 
+    # Checked here rather than when the wrappers are written, so an incompatible
+    # combination fails before the database is published instead of leaving the
+    # site half finished.
+    options[:wrappers] && isempty(options[:server]) &&
+        error("--wrappers needs --server=URL: a wrapper without a server " *
+              "points nowhere.")
+
     return options
 end
 
@@ -166,3 +177,13 @@ Example:
       --asset-base=https://github.com/acme/myapp/releases/download/v1.2.0 \\
       --platform=linux/x86_64 --platform=macos/aarch64 --wrappers
 """
+
+# `julia -m Module` dispatches to a function registered with `@main`, which
+# Julia 1.11 introduced. The command itself works on 1.10 through `run_cli`; it
+# just cannot be reached that way, so the registration is guarded rather than
+# raising the package's lower bound past the current LTS.
+@static if VERSION >= v"1.11"
+    function (@main)(ARGS)
+        return run_cli(ARGS)
+    end
+end
