@@ -33,9 +33,11 @@ jobs:
           files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  # The end to end test drives a real juliaup client over a loopback HTTP
-  # server. It is opt in for local runs, but always worth running in CI: it is
-  # the only check that proves a published database is actually installable.
+  # The end to end tests drive a real juliaup client. They are the only checks
+  # that prove a published database is actually installable, so juliaup has to
+  # be installed explicitly: julia-actions/setup-julia installs Julia directly,
+  # and without juliaup on PATH these tests skip themselves and the job goes
+  # green having verified nothing.
   e2e:
     name: End to end against juliaup
     runs-on: ubuntu-latest
@@ -46,7 +48,22 @@ jobs:
           version: '1'
       - uses: julia-actions/cache@v3
       - uses: julia-actions/julia-buildpkg@v1
+
+      - name: Install juliaup
+        run: |
+          curl -fsSL https://install.julialang.org | sh -s -- --yes --default-channel release
+          echo "$HOME/.juliaup/bin" >> "$GITHUB_PATH"
+
+      - name: Confirm juliaup is present
+        run: |
+          juliaup --version
+          test -n "$(command -v juliaup)"
+
       - name: Run the end to end test
+        env:
+          # Turns an unmet prerequisite into a failure, so the job cannot go
+          # green having skipped everything.
+          JULIAUP_E2E_REQUIRED: 'true'
         run: julia --project=. test/e2e_tests.jl
 
       # Nothing mocked: republishes the real release entry from the public

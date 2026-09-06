@@ -135,10 +135,29 @@ function distribution_for(dist, channel)
                                        mirror = false)
 end
 
+"""
+Report a reason the test cannot run.
+
+Skipping is right for a developer without juliaup installed, but a skip that
+turns a CI job green has verified nothing while looking like it has. Set
+JULIAUP_E2E_REQUIRED=true where the test is expected to run, and an unmet
+prerequisite becomes a failure instead.
+"""
+function unavailable(reason)
+    if get(ENV, "JULIAUP_E2E_REQUIRED", "false") == "true"
+        error("juliaup end to end test cannot run: $reason. " *
+              "JULIAUP_E2E_REQUIRED is set, so this is a failure rather " *
+              "than a skip.")
+    end
+
+    @info "Skipping juliaup end to end test: $reason"
+    return
+end
+
 if !Sys.isunix()
-    @info "Skipping juliaup end to end test: POSIX host required"
+    unavailable("POSIX host required")
 elseif isnothing(Sys.which("juliaup"))
-    @info "Skipping juliaup end to end test: `juliaup` not found on PATH"
+    unavailable("`juliaup` not found on PATH")
 else
 
     site = mktempdir()

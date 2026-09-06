@@ -36,6 +36,9 @@ own and reused outside AppBundler.
 - An end to end test that installs a published channel with a real `juliaup`
   client over a loopback HTTP server, covering both relative and absolute
   `UrlPath`.
+- `JULIAUP_E2E_REQUIRED`, which turns a missing prerequisite in the end to end
+  test into a failure rather than a skip, so a CI job cannot go green having
+  verified nothing.
 - `examples/real_julia_demo.jl`, which mocks nothing: it republishes the real
   `release` entry from the public database under its own channel name and lets
   `juliaup` install the actual Julia from julialang.org, using a database
